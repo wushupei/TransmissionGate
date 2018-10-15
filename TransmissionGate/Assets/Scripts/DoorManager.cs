@@ -13,18 +13,17 @@ public class DoorManager : MonoBehaviour
     public Transform[] substitutes; //替身
     public Transform[] copyCameras; //辅助摄像机
 
-    public Transform[] doorSprites; //传送门
+    public Door[] doorSprites; //传送门
     ParticleSystem.MainModule pm;
     public ParticleSystem effect; //子弹特效
     int number = 0; //计数器
-    bool delivery = true; //传送门冷却
     void Start()
     {
         pm = effect.main;
     }
     void LateUpdate()
     {
-        SetSubstitutePos();//
+        SetSubstitutePos();//替身及辅助摄像机实时跟随
         DeliveryPlayer(); //调用传送方法       
         SwitchCameraDepth(); //调用摄像机层级切换方法
     }
@@ -50,10 +49,7 @@ public class DoorManager : MonoBehaviour
     }
     void OpenDoor(int i) //打开传送门
     {
-        doorSprites[i].position = walls[i].position; //在墙的位置生成传送门
-        doorSprites[i].rotation = walls[i].rotation; //跟随门的旋转方向
-        doorSprites[i].Rotate(0, i == 1 ? 180 : 0, 0); //单数门要旋转
-        doorSprites[i].GetComponent<SpriteRenderer>().flipX = i == 1 ? true : false; //单数门要旋转回图片
+        doorSprites[i].OpenDoor(walls[i].position, walls[i].rotation);
         star.color = i == 0 ? Color.red : Color.blue;
         pm.startColor = i == 0 ? Color.red : Color.blue;
     }
@@ -65,10 +61,10 @@ public class DoorManager : MonoBehaviour
             DeliveryCondition(1, 0, substitutes[1].localPosition.z < 0);
         }
     }
-    void DeliveryCondition(int i0, int i1, bool b) //传送条件
+    void DeliveryCondition(int i0, int i1, bool b) //传送主角条件
     {
         //判断某个一层替身与父物体(传送门)的位置关系
-        if (Mathf.Abs(substitutes[i0].localPosition.x) < 1f && Mathf.Abs(substitutes[i0].localPosition.y) < 1 && b)
+        if (Mathf.Abs(substitutes[i0].localPosition.x) < 0.3f && Mathf.Abs(substitutes[i0].localPosition.y) < 1 && b)
         {
             //将主角传送至另一个一层替身位置
             player.position = copyCameras[i1].position;
@@ -95,29 +91,26 @@ public class DoorManager : MonoBehaviour
     }
     void SwitchCameraDepth() //切换第一层摄像机层级
     {
-        //如果两个传送门的高度相差不多
-        if (Mathf.Abs(doorSprites[0].position.y - doorSprites[1].position.y) < 0.1f)
+        //如果两个一层替身本地高度差不多，哪个替身离父物体Z轴距离近,一起的摄像机层级越低
+        if (Mathf.Abs(substitutes[0].localPosition.y - substitutes[1].localPosition.y) < 0.1f)
         {
-            //哪个替身离父物体(传送门)近,一起的摄像机层级越低
             if (Mathf.Abs(substitutes[0].localPosition.z) < Mathf.Abs(substitutes[1].localPosition.z))
-                SetDepth(-3, -2);
+                SetDepth(copyCameras[0], copyCameras[1]);
             else
-                SetDepth(-2, -3);
+                SetDepth(copyCameras[1], copyCameras[0]);
         }
-        //如果高度相差很大
-        else
+        else //如果高度相差很大，哪个替身与父物体Y轴距离小,一起的子物体摄像机层级越低
         {
-            //哪个传送门高,它的子物体摄像机层级越高
-            if (doorSprites[0].position.y > doorSprites[1].position.y)
-                SetDepth(-2, -3);
+            if (Mathf.Abs(substitutes[0].localPosition.y) < Mathf.Abs(substitutes[1].localPosition.y))
+                SetDepth(copyCameras[0], copyCameras[1]);
             else
-                SetDepth(-3, -2);
+                SetDepth(copyCameras[1], copyCameras[0]);
         }
     }
-    void SetDepth(int layer1, int layer2) //设置一层摄像机渲染层级
+    void SetDepth(Transform camera1, Transform camera2) //设置一层两个摄像机渲染层级
     {
-        copyCameras[0].GetComponent<Camera>().depth = layer1;
-        copyCameras[1].GetComponent<Camera>().depth = layer2;
+        camera1.GetComponent<Camera>().depth = -3;
+        camera2.GetComponent<Camera>().depth = -2;
     }
     void SetSubstitutePos() //多层摄像机渲染
     {
