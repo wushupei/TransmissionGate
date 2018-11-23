@@ -7,9 +7,10 @@ public class Door : MonoBehaviour
     Vector3 pos; //位置
     Vector3 scale;//大小
     public float angle; //旋转角度
-    public Transform prefabDoor; //假门预制体
+    public Transform CopyDoor; //把假门拖进去
     void Start()
     {
+        //记录初始位置和大小
         pos = transform.position;
         scale = transform.localScale;
     }
@@ -23,9 +24,9 @@ public class Door : MonoBehaviour
             transform.localScale = Vector3.zero;
         }
         //真门变大
-        transform.localScale = Vector3.Lerp(transform.localScale, scale, Time.deltaTime * 10);
+        transform.localScale = Vector3.Lerp(transform.localScale, scale, Time.deltaTime*10 );
 
-        if (prefabDoor.gameObject.activeInHierarchy) //如果假门被启用调用展示效果方法
+        if (CopyDoor.gameObject.activeInHierarchy) //如果假门被启用调用展示效果方法
             ShowPrefabDoor();
     }
     public void OpenDoor(Vector3 pos, Quaternion rota) //打开传送门
@@ -39,17 +40,16 @@ public class Door : MonoBehaviour
     void DisplayDoor() //显示假门
     {
         //首先复制真门的位置旋转尺寸，然后启用
-        prefabDoor.position = pos;
-        prefabDoor.rotation = transform.rotation;
-        prefabDoor.localScale = scale;
-        prefabDoor.gameObject.SetActive(true);
+        CopyDoor.position = pos;
+        CopyDoor.rotation = transform.rotation;
+        CopyDoor.localScale = scale;
+        CopyDoor.gameObject.SetActive(true);
     }
     void ShowPrefabDoor() //展示假门效果
     {
         //假门变小
-        prefabDoor.localScale = Vector3.Lerp(prefabDoor.localScale, Vector3.zero, Time.deltaTime * 10);
-        if (prefabDoor.localScale.x < 0.1f) //小到一定程度就禁用
-            prefabDoor.gameObject.SetActive(false);
-    }
-    
+        CopyDoor.localScale = Vector3.Lerp(CopyDoor.localScale, Vector3.zero, Time.deltaTime*10 );
+        if (CopyDoor.localScale.x < 0.1f) //小到一定程度就禁用
+            CopyDoor.gameObject.SetActive(false);
+    }   
 }

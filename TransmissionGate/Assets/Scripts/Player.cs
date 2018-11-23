@@ -28,15 +28,20 @@ public class Player : MonoBehaviour //主角
             //移动
             Move(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             //跳跃
-            if (Input.GetKeyDown(KeyCode.Space))
-                Jump();
-            //子弹只有一颗,当处于禁用状态时才可以开枪调用子弹
-            if (Input.GetMouseButtonDown(0) && shoot)
+            if (Input.GetKeyDown(KeyCode.Space) && shoot)
             {
+                //Jump();
                 shoot = false;
                 am.Attack(); //攻击动画
                 Invoke("Shoot", 0.5f);
             }
+            //子弹只有一颗,当处于禁用状态时才可以开枪调用子弹
+            //if (Input.GetMouseButtonDown(0) && shoot)
+            //{
+            //    shoot = false;
+            //    am.Attack(); //攻击动画
+            //    Invoke("Shoot", 0.5f);
+            //}
         }
         else
             Down(); //重力       

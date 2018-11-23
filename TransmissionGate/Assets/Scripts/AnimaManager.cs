@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class AnimaManager : MonoBehaviour
 {
-
     Player player;
     Animator anim;
     public AnimaManager()
@@ -19,10 +18,10 @@ public class AnimaManager : MonoBehaviour
     }
     public void Move(float x, float z)
     {
-            anim.SetBool("Left", x < -0.5f);
-            anim.SetBool("Right", x > 0.5f);
-            anim.SetBool("Run", z > 0.5f);
-            anim.SetBool("Back", z < -0.5f);
+        anim.SetBool("Left", x < -0.5f);
+        anim.SetBool("Right", x > 0.5f);
+        anim.SetBool("Run", z > 0.5f);
+        anim.SetBool("Back", z < -0.5f);
     }
     public void Jump()
     {
